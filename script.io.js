@@ -222,6 +222,7 @@ function handleAddTask(e) {
 }
 
 /* --- Web Speech API (สั่งงานด้วยเสียงภาษาไทย) --- */
+/* --- Web Speech API (สั่งงานด้วยเสียงภาษาไทยแบบไร้รอยต่อ) --- */
 function startVoiceCommand() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
@@ -233,8 +234,14 @@ function startVoiceCommand() {
   recognition.lang = "th-TH";
   recognition.interimResults = false;
 
+  // ค้นหาปุ่มไมโครโฟนเพื่อเปลี่ยนสถานะทางสายตาแทนการใช้ alert
+  const micBtn = document.querySelector("button[title='สั่งงานด้วยเสียงภาษาไทย']");
+
   recognition.onstart = () => {
-    alert("กำลังฟังเสียง... กรุณาพูดชื่องานของคุณครับ");
+    if (micBtn) {
+      micBtn.style.background = "var(--danger)";
+      micBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    }
   };
 
   recognition.onresult = (event) => {
@@ -244,12 +251,19 @@ function startVoiceCommand() {
   };
 
   recognition.onerror = () => {
-    alert("เกิดข้อผิดพลาดในการฟังเสียง กรุณาลองใหม่อีกครั้ง");
+    // ซ่อนการแจ้งเตือน Error จุกจิก ให้คืนค่าปุ่มตามเดิมเงียบๆ หรือแจ้งเตือนเบาๆ
+    console.warn("Speech recognition error");
+  };
+
+  recognition.onsend = recognition.onend = () => {
+    if (micBtn) {
+      micBtn.style.background = "";
+      micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+    }
   };
 
   recognition.start();
 }
-
 /* --- Admin Management --- */
 function loadAdminData() {
   const users = JSON.parse(localStorage.getItem("taskflow_users")) || [];
