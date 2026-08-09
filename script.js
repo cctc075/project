@@ -190,3 +190,28 @@ function logout() {
     localStorage.clear();
     window.location.href = 'index.html';
 }
+
+// --- ฟังก์ชันควบคุมเปิด/ปิดเมนูบนมือถือ ---
+function toggleMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar && overlay) {
+        sidebar.classList.toggle('mobile-open');
+        overlay.classList.toggle('show');
+    }
+}
+
+// ปิดเมนูอัตโนมัติเมื่อกดเลือกเมนูย่อยบนมือถือ
+function switchTab(e, tabId) {
+    e.preventDefault();
+    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+    if(e.currentTarget) e.currentTarget.classList.add('active');
+
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+
+    // ถ้าอยู่บนมือถือ ให้ปิด Sidebar อัตโนมัติหลังกดเลือกเมนู
+    if (window.innerWidth <= 768) {
+        toggleMobileSidebar();
+    }
+}

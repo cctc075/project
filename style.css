@@ -479,3 +479,132 @@ body {
         gap: 12px;
     }
 }
+
+/* --- ปุ่มแฮมเบอร์เกอร์ (ซ่อนบน Desktop, แสดงบน Mobile) --- */
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    color: var(--text-main);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.hamburger-btn:hover {
+    background: #f1f5f9;
+}
+
+/* --- ฉากหลังมืดเวลาเปิดเมนวมือถือ --- */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    display: none;
+    z-index: 90;
+}
+.sidebar-overlay.show {
+    display: block;
+}
+
+/* ==========================================
+   RESPONSIVE MEDIA QUERIES (สำหรับมือถือ)
+   ================================---------- */
+@media (max-width: 1024px) {
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .hamburger-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-split-container {
+        flex-direction: column;
+    }
+    .login-split-banner {
+        display: none; 
+    }
+
+    .app-container {
+        flex-direction: column;
+        height: 100vh;
+        height: 100dvh;
+    }
+
+    /* แปลง Sidebar เป็นเมนูสไลด์ด้านข้าง (Drawer) บนมือถือ */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px; /* ซ่อนไว้นอกจอฝั่งซ้าย */
+        width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 100;
+        box-shadow: 10px 0 25px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: var(--sidebar-bg);
+    }
+
+    /* คลาสสั่งเปิดเมนู Sidebar บนมือถือ */
+    .sidebar.mobile-open {
+        transform: translateX(280px);
+    }
+
+    .sidebar-brand {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-menu {
+        flex-direction: column;
+        padding: 15px;
+        gap: 6px;
+        overflow-y: auto;
+    }
+
+    .menu-item {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+    }
+
+    .sidebar-footer {
+        display: flex; /* แสดงโปรไฟล์ย่อที่ล่าง Sidebar มือถือ */
+    }
+
+    .topbar {
+        padding: 0 15px;
+        height: 60px;
+        gap: 10px;
+    }
+
+    .topbar h2 {
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .tab-content {
+        padding: 15px;
+    }
+
+    .stats-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .kanban-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}

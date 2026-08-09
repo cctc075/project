@@ -31,9 +31,15 @@
 
         <main class="main-content">
             <header class="topbar">
-                <h2>ระบบบริหารจัดการงานนักศึกษา</h2>
-                <button class="btn-primary" onclick="openTaskModal()"><i class="fa-solid fa-plus"></i> เพิ่มงานใหม่</button>
-            </header>
+    <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+        <!-- ปุ่มแฮมเบอร์เกอร์สำหรับมือถือ -->
+        <button class="hamburger-btn" onclick="toggleMobileSidebar()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2>ระบบบริหารจัดการงานนักศึกษา</h2>
+    </div>
+    <button class="btn-primary" onclick="openTaskModal()"><i class="fa-solid fa-plus"></i> เพิ่มงานใหม่</button>
+</header>
 
             <!-- แท็บภาพรวม -->
             <div id="tab-dashboard" class="tab-content active">
@@ -276,5 +282,7 @@
 
         function logout() { localStorage.clear(); window.location.href = 'index.html'; }
     </script>
+    <!-- ฉากหลังสำหรับปิดเมนวมือถือเมื่อคลิกพื้นที่ว่าง -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
 </body>
 </html>
