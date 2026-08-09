@@ -13,6 +13,7 @@
   <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
 
   <div class="app-container">
+    <!-- Sidebar -->
     <aside id="sidebar">
       <div class="sidebar-brand"><i class="fas fa-layer-group"></i> TaskFlow Pro</div>
       <ul class="sidebar-menu">
@@ -21,6 +22,7 @@
       </ul>
     </aside>
 
+    <!-- Main Content -->
     <div class="main-content">
       <header>
         <div class="topbar-left">
@@ -37,6 +39,7 @@
       </header>
 
       <div class="content-body">
+        <!-- สถิติ -->
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-info">
@@ -68,11 +71,13 @@
           </div>
         </div>
 
+        <!-- หัวข้อ Kanban -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
           <h3 style="font-size: 20px;">กระดานงาน (Kanban Board)</h3>
           <button class="btn-primary-custom" style="width: auto; padding: 12px 24px; margin: 0;" onclick="openTaskModal()"><i class="fas fa-plus"></i> เพิ่มงานใหม่</button>
         </div>
 
+        <!-- Kanban Board -->
         <div class="kanban-container" id="kanbanBoard">
           <div class="kanban-col">
             <h4>รอดำเนินการ <span class="badge badge-todo">Todo</span></h4>
@@ -91,6 +96,7 @@
     </div>
   </div>
 
+  <!-- Modal ฟอร์มเพิ่มงานใหม่ (แก้ไขให้เหลือชุดเดียวและย้ายมาไว้ด้านล่างเพื่อความเรียบร้อย) -->
   <div class="modal" id="taskModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -98,17 +104,45 @@
         <button class="close-btn" onclick="closeTaskModal()">&times;</button>
       </div>
       <form id="taskForm" onsubmit="handleAddTask(event)">
+        
         <div class="form-group">
           <label>ชื่องาน</label>
           <div style="display: flex; gap: 10px;">
             <input type="text" id="taskTitle" class="form-control" required placeholder="ระบุชื่องานโครงงาน" style="padding-left: 16px;">
-            <button type="button" class="btn-primary-custom" style="width: 50px; margin:0;" onclick="startVoiceCommand()" title="สั่งงานด้วยเสียงภาษาไทย"><i class="fas fa-microphone"></i></button>
+            <button type="button" class="btn-primary-custom" style="width: 50px; margin:0; background: var(--bg-color); color: var(--text-main); border: 1px solid var(--border-color);" onclick="startVoiceCommand()" title="สั่งงานด้วยเสียงภาษาไทย"><i class="fas fa-microphone"></i></button>
           </div>
         </div>
+
+        <div style="display: flex; gap: 12px;">
+          <div class="form-group" style="flex: 1;">
+            <label>หมวดหมู่ (Category)</label>
+            <select id="taskCategory" class="form-control" style="padding-left: 16px;">
+              <option value="frontend">Frontend UI</option>
+              <option value="backend">Backend & DB</option>
+              <option value="document">เอกสารโครงงาน</option>
+              <option value="testing">ทดสอบระบบ</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>ระดับความสำคัญ (Priority)</label>
+            <select id="taskPriority" class="form-control" style="padding-left: 16px;">
+              <option value="normal">ปกติ</option>
+              <option value="medium">ปานกลาง</option>
+              <option value="high">ด่วนที่สุด 🔥</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>วันที่กำหนดส่ง (Due Date)</label>
+          <input type="date" id="taskDueDate" class="form-control" required style="padding-left: 16px;">
+        </div>
+
         <div class="form-group">
           <label>รายละเอียดเพิ่มเติม</label>
-          <textarea id="taskDesc" class="form-control" rows="3" placeholder="รายละเอียดงาน..." style="padding-left: 16px;"></textarea>
+          <textarea id="taskDesc" class="form-control" rows="2" placeholder="รายละเอียดงาน..." style="padding-left: 16px;"></textarea>
         </div>
+
         <div class="form-group">
           <label>สถานะเริ่มต้น</label>
           <select id="taskStatus" class="form-control" style="padding-left: 16px;">
@@ -117,6 +151,7 @@
             <option value="done">เสร็จสิ้น</option>
           </select>
         </div>
+        
         <button type="submit" class="btn-primary-custom">บันทึกข้อมูลงาน</button>
       </form>
     </div>

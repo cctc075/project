@@ -117,12 +117,12 @@ function logout() {
   window.location.href = "index.html";
 }
 
-/* --- Task Management & Kanban --- */
+/* --- Task Management & Kanban (Updated with Category, Priority & Due Date) --- */
 function getTasks() {
   const defaultTasks = [
-    { id: 1, title: "ออกแบบ UI แดชบอร์ด", desc: "จัดทำดีไซน์ Glassmorphism สวยหรู", status: "todo" },
-    { id: 2, title: "พัฒนาระบบ Drag & Drop", desc: "เชื่อมโยงข้อมูลคอลัมน์ Kanban", status: "doing" },
-    { id: 3, title: "ทดสอบการใช้งาน Dark Mode", desc: "ตรวจสอบความถูกต้องของ CSS Variables", status: "done" }
+    { id: 1, title: "ออกแบบ UI แดชบอร์ด", desc: "จัดทำดีไซน์ Glassmorphism สวยหรู", status: "todo", category: "frontend", priority: "high", dueDate: "2026-06-15" },
+    { id: 2, title: "พัฒนาระบบ Drag & Drop", desc: "เชื่อมโยงข้อมูลคอลัมน์ Kanban", status: "doing", category: "backend", priority: "medium", dueDate: "2026-06-20" },
+    { id: 3, title: "ทดสอบการใช้งาน Dark Mode", desc: "ตรวจสอบความถูกต้องของ CSS Variables", status: "done", category: "testing", priority: "normal", dueDate: "2026-06-10" }
   ];
   let tasks = JSON.parse(localStorage.getItem("taskflow_tasks"));
   if (!tasks) {
@@ -150,6 +150,7 @@ function loadTasks() {
   doneCol.innerHTML = "";
 
   let counts = { todo: 0, doing: 0, done: 0, total: tasks.length };
+  const today = new Date().toISOString().split("T")[0]; // วันที่ปัจจุบัน (พ.ศ. 2569 / ค.ศ. 2026)
 
   tasks.forEach(task => {
     counts[task.status]++;
@@ -157,10 +158,39 @@ function loadTasks() {
     card.className = "task-card";
     card.draggable = true;
     card.dataset.id = task.id;
+
+    // ระบบเช็กวันกำหนดส่ง (Due Date Alert)
+    let dueDateAlert = "";
+    if (task.dueDate && task.status !== "done") {
+      if (task.dueDate < today) {
+        dueDateAlert = `<span class="badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #f87171;">⚠️ เลยกำหนด!</span>`;
+        card.style.borderColor = "#dc2626"; // เน้นขอบการ์ดสีแดง
+      } else {
+        // คำนวณระยะห่างวัน (ใกล้ถึงกำหนดภายใน 2 วัน)
+        const diffTime = new Date(task.dueDate) - new Date(today);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays <= 2 && diffDays >= 0) {
+          dueDateAlert = `<span class="badge" style="background: #fef3c7; color: #d97706; border: 1px solid #fbbf24;">⏰ ใกล้หมดเขต</span>`;
+          card.style.borderColor = "#d97706"; // เน้นขอบการ์ดสีส้ม
+        }
+      }
+    }
+
+    let priorityBadge = "";
+    if (task.priority === "high") priorityBadge = `<span class="badge" style="background: #fee2e2; color: #dc2626; margin-left: 6px;">ด่วน 🔥</span>`;
+    else if (task.priority === "medium") priorityBadge = `<span class="badge" style="background: #fef3c7; color: #d97706; margin-left: 6px;">ปานกลาง</span>`;
+
     card.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+        <span class="badge" style="background: var(--primary-light); color: var(--primary); font-size: 11px;">${getCategoryText(task.category)}</span>
+        <div style="display: flex; gap: 4px;">${dueDateAlert} ${priorityBadge}</div>
+      </div>
       <h5>${task.title}</h5>
       <p>${task.desc}</p>
-      <span class="badge badge-${task.status}">${getStatusText(task.status)}</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted); margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border-color);">
+        <span><i class="far fa-calendar-alt"></i> ${task.dueDate || 'ไม่ระบุ'}</span>
+        <span class="badge badge-${task.status}">${getStatusText(task.status)}</span>
+      </div>
     `;
     card.addEventListener("dragstart", (e) => {
       e.dataTransfer.setData("text/plain", task.id);
@@ -181,6 +211,11 @@ function getStatusText(status) {
   if (status === "todo") return "รอดำเนินการ";
   if (status === "doing") return "กำลังทำ";
   return "เสร็จสิ้น";
+}
+
+function getCategoryText(cat) {
+  const map = { frontend: "Frontend UI", backend: "Backend & DB", document: "เอกสารโครงงาน", testing: "ทดสอบระบบ" };
+  return map[cat] || "ทั่วไป";
 }
 
 function initDragAndDrop() {
@@ -211,17 +246,19 @@ function handleAddTask(e) {
   e.preventDefault();
   const title = document.getElementById("taskTitle").value.trim();
   const desc = document.getElementById("taskDesc").value.trim();
+  const category = document.getElementById("taskCategory").value;
+  const priority = document.getElementById("taskPriority").value;
+  const dueDate = document.getElementById("taskDueDate").value;
   const status = document.getElementById("taskStatus").value;
 
   let tasks = getTasks();
-  const newTask = { id: Date.now(), title, desc, status };
+  const newTask = { id: Date.now(), title, desc, category, priority, dueDate, status };
   tasks.push(newTask);
   saveTasks(tasks);
   closeTaskModal();
   document.getElementById("taskForm").reset();
 }
 
-/* --- Web Speech API (สั่งงานด้วยเสียงภาษาไทย) --- */
 /* --- Web Speech API (สั่งงานด้วยเสียงภาษาไทยแบบไร้รอยต่อ) --- */
 function startVoiceCommand() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -234,7 +271,6 @@ function startVoiceCommand() {
   recognition.lang = "th-TH";
   recognition.interimResults = false;
 
-  // ค้นหาปุ่มไมโครโฟนเพื่อเปลี่ยนสถานะทางสายตาแทนการใช้ alert
   const micBtn = document.querySelector("button[title='สั่งงานด้วยเสียงภาษาไทย']");
 
   recognition.onstart = () => {
@@ -251,7 +287,6 @@ function startVoiceCommand() {
   };
 
   recognition.onerror = () => {
-    // ซ่อนการแจ้งเตือน Error จุกจิก ให้คืนค่าปุ่มตามเดิมเงียบๆ หรือแจ้งเตือนเบาๆ
     console.warn("Speech recognition error");
   };
 
@@ -264,6 +299,7 @@ function startVoiceCommand() {
 
   recognition.start();
 }
+
 /* --- Admin Management --- */
 function loadAdminData() {
   const users = JSON.parse(localStorage.getItem("taskflow_users")) || [];
