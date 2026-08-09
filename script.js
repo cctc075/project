@@ -1,11 +1,10 @@
 // ข้อมูลงานเริ่มต้นของระบบ
-let tasks = [
+let tasks = JSON.parse(localStorage.getItem('taskflow_tasks')) || [
     { id: 1, title: 'ออกแบบโครงสร้างฐานข้อมูล SQL', category: 'IT Project', status: 'done' },
     { id: 2, title: 'จัดทำเอกสารนำเสนอโครงงาน', category: 'Assignment', status: 'inprogress' }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ตรวจสอบชื่อผู้ใช้งานจาก LocalStorage
     const currentUser = localStorage.getItem('currentUser') || 'ผู้ใช้งาน';
     const nameEl = document.getElementById('studentName');
     if (nameEl) {
@@ -14,17 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTasks();
 });
 
-// ฟังก์ชันสลับแท็บเมนูในหน้า Dashboard ของนักศึกษา (ตัดเมนูเสียงออกเพราะรวมเข้ากับ modal แล้ว)
+// ฟังก์ชันสลับแท็บเมนู
 function switchTab(e, tabId) {
     e.preventDefault();
     document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-    e.currentTarget.classList.add('active');
+    if(e.currentTarget) e.currentTarget.classList.add('active');
 
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId).classList.add('active');
 }
 
-// เรนเดอร์ข้อมูลงานทั้งหมดลงในตารางและบอร์ด Kanban
+// เรนเดอร์ข้อมูลงานทั้งหมด
 function renderTasks() {
     const cntTotal = document.getElementById('cntTotal');
     const cntTodo = document.getElementById('cntTodo');
@@ -36,7 +35,6 @@ function renderTasks() {
     if (cntProgress) cntProgress.innerText = tasks.filter(t => t.status === 'inprogress').length;
     if (cntDone) cntDone.innerText = tasks.filter(t => t.status === 'done').length;
 
-    // เรนเดอร์ตารางสรุปงานล่าสุด
     const tableBody = document.getElementById('recentTableBody');
     if (tableBody) {
         let tableHtml = '';
@@ -57,10 +55,11 @@ function renderTasks() {
         tableBody.innerHTML = tableHtml;
     }
 
-    // เรนเดอร์บอร์ด Kanban แยกตามสถานะ
     renderKanbanCol('colTodo', 'numTodo', tasks.filter(t => t.status === 'todo'));
     renderKanbanCol('colProgress', 'numProgress', tasks.filter(t => t.status === 'inprogress'));
     renderKanbanCol('colDone', 'numDone', tasks.filter(t => t.status === 'done'));
+    
+    localStorage.setItem('taskflow_tasks', JSON.stringify(tasks));
 }
 
 function renderKanbanCol(colId, numId, list) {
@@ -81,14 +80,10 @@ function renderKanbanCol(colId, numId, list) {
     }
 }
 
-// ระบบ Drag & Drop สำหรับย้ายสถานะงานใน Kanban
+// ระบบ Drag & Drop
 let draggedId = null;
-function dragStart(e, id) {
-    draggedId = id;
-}
-function allowDrop(e) {
-    e.preventDefault();
-}
+function dragStart(e, id) { draggedId = id; }
+function allowDrop(e) { e.preventDefault(); }
 function dropTask(e, newStatus) {
     e.preventDefault();
     if (draggedId !== null) {
@@ -109,9 +104,6 @@ function openTaskModal() {
 function closeTaskModal() {
     const modal = document.getElementById('taskModal');
     if (modal) modal.classList.remove('show');
-    // รีเซ็ตข้อความเสียงใน Modal หากค้างอยู่
-    const voiceBox = document.getElementById('voiceResultBox');
-    if (voiceBox) voiceBox.innerHTML = 'คลิกปุ่มไมโครโฟนเพื่อพูดชื่อชิ้นงาน...';
 }
 
 function handleAddTask(e) {
@@ -145,7 +137,7 @@ function deleteTask(id) {
     }
 }
 
-// ฟังก์ชันสั่งงานด้วยเสียงแบบทำงานร่วมกับ Modal เพิ่มงาน
+// ระบบสั่งงานด้วยเสียงผ่าน Web Speech API
 let recognition = null;
 function toggleSpeechRecognitionInModal() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -160,42 +152,40 @@ function toggleSpeechRecognitionInModal() {
         recognition.interimResults = false;
 
         recognition.onstart = () => {
-            const resultBox = document.getElementById('voiceResultBox');
-            if (resultBox) resultBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="color:var(--primary);"></i> กำลังฟังเสียงพูดของคุณ... กรุณาพูดชื่องาน';
+            const resultBox = document.getElementById('modalVoiceResult');
+            if (resultBox) resultBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังฟังเสียงพูดของคุณ...';
         };
 
         recognition.onresult = (event) => {
             const speechText = event.results[0][0].transcript;
-            const resultBox = document.getElementById('voiceResultBox');
             const titleInput = document.getElementById('inputTitle');
             const catInput = document.getElementById('inputCategory');
+            const resultBox = document.getElementById('modalVoiceResult');
 
             if (titleInput) titleInput.value = speechText;
 
-            // AI ช่วยวิเคราะห์หมวดหมู่อัตโนมัติจากเสียงพูด
-            let detectedCategory = 'สั่งงานด้วยเสียง';
-            if (speechText.includes('โค้ด') || speechText.includes('ระบบ') || speechText.includes('ฐานข้อมูล') || speechText.includes('เว็บ') || speechText.includes('IT')) {
+            let detectedCategory = 'General';
+            if (speechText.includes('โค้ด') || speechText.includes('ระบบ') || speechText.includes('ฐานข้อมูล') || speechText.includes('เว็บ')) {
                 detectedCategory = 'IT Project';
-            } else if (speechText.includes('การบ้าน') || speechText.includes('รายงาน') || speechText.includes('ส่งอาจารย์')) {
+            } else if (speechText.includes('การบ้าน') || speechText.includes('รายงาน')) {
                 detectedCategory = 'Assignment';
             }
             if (catInput) catInput.value = detectedCategory;
 
             if (resultBox) {
-                resultBox.innerHTML = `🤖 <strong>AI วิเคราะห์สำเร็จ:</strong> "${speechText}" (หมวดหมู่: ${detectedCategory})`;
+                resultBox.innerHTML = `🤖 <strong>AI วิเคราะห์สำเร็จ:</strong> "${speechText}"`;
             }
         };
 
         recognition.onerror = () => {
-            const resultBox = document.getElementById('voiceResultBox');
-            if (resultBox) resultBox.innerText = 'เกิดข้อผิดพลาดในการฟังเสียง กรุณาลองใหม่อีกครั้ง';
+            const resultBox = document.getElementById('modalVoiceResult');
+            if (resultBox) resultBox.innerText = 'เกิดข้อผิดพลาดในการฟังเสียง กรุณาลองใหม่';
         };
     }
 
     recognition.start();
 }
 
-// ฟังก์ชันออกจากระบบ
 function logout() {
     localStorage.clear();
     window.location.href = 'index.html';
