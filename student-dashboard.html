@@ -1,288 +1,127 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - TaskFlow Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow Pro - แดชบอร์ดนักศึกษา</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <i class="fa-solid fa-graduation-cap"></i>
-                <span>Student Portal</span>
-            </div>
-            <div class="sidebar-menu">
-                <a href="#" class="menu-item active" onclick="switchTab(event, 'tab-dashboard')"><i class="fa-solid fa-chart-pie"></i> ภาพรวมงานของฉัน</a>
-                <a href="#" class="menu-item" onclick="switchTab(event, 'tab-kanban')"><i class="fa-solid fa-kanban"></i> บอร์ดงาน (Kanban)</a>
-                <a href="#" class="menu-item" onclick="switchTab(event, 'tab-voice')"><i class="fa-solid fa-microphone-lines"></i> สั่งงานด้วยเสียง AI</a>
-            </div>
-            <div class="sidebar-footer">
-                <div class="user-profile-mini">
-                    <i class="fa-solid fa-circle-user"></i>
-                    <div id="studentName" style="font-weight: 500; font-size: 0.85rem;">นักศึกษา</div>
-                </div>
-                <button class="btn-logout-mini" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
-            </div>
-        </aside>
 
-        <main class="main-content">
-            <header class="topbar">
-    <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-        <!-- ปุ่มแฮมเบอร์เกอร์สำหรับมือถือ -->
-        <button class="hamburger-btn" onclick="toggleMobileSidebar()">
-            <i class="fa-solid fa-bars"></i>
-        </button>
-        <h2>ระบบบริหารจัดการงานนักศึกษา</h2>
-    </div>
-    <button class="btn-primary" onclick="openTaskModal()"><i class="fa-solid fa-plus"></i> เพิ่มงานใหม่</button>
-</header>
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
 
-            <!-- แท็บภาพรวม -->
-            <div id="tab-dashboard" class="tab-content active">
-                <div class="stats-row">
-                    <div class="stat-box"><h3>งานทั้งหมด</h3><p id="cntTotal">0</p></div>
-                    <div class="stat-box"><h3>รอดำเนินการ</h3><p id="cntTodo">0</p></div>
-                    <div class="stat-box"><h3>กำลังทำ</h3><p id="cntProgress">0</p></div>
-                    <div class="stat-box"><h3>เสร็จสิ้น</h3><p id="cntDone">0</p></div>
-                </div>
-                <div class="card" style="margin-top: 25px;">
-                    <h3><i class="fa-solid fa-clock-rotate-left"></i> รายการงานของคุณ</h3>
-                    <table class="clean-table" style="margin-top: 15px;">
-                        <thead><tr><th>ชื่องาน</th><th>หมวดหมู่</th><th>สถานะ</th><th style="text-align: right;">จัดการ</th></tr></thead>
-                        <tbody id="recentTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
+  <div class="app-container">
+    <aside id="sidebar">
+      <div class="sidebar-brand"><i class="fas fa-layer-group"></i> TaskFlow Pro</div>
+      <ul class="sidebar-menu">
+        <li><a href="student-dashboard.html" class="active"><i class="fas fa-columns"></i> บอร์ดจัดการงาน</a></li>
+        <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a></li>
+      </ul>
+    </aside>
 
-            <!-- แท็บ Kanban -->
-            <div id="tab-kanban" class="tab-content">
-                <div class="kanban-grid">
-                    <div class="kanban-col" ondragover="allowDrop(event)" ondrop="dropTask(event, 'todo')">
-                        <div class="kanban-header todo">รอดำเนินการ (<span id="numTodo">0</span>)</div>
-                        <div class="kanban-body" id="colTodo"></div>
-                    </div>
-                    <div class="kanban-col" ondragover="allowDrop(event)" ondrop="dropTask(event, 'inprogress')">
-                        <div class="kanban-header progress">กำลังดำเนินการ (<span id="numProgress">0</span>)</div>
-                        <div class="kanban-body" id="colProgress"></div>
-                    </div>
-                    <div class="kanban-col" ondragover="allowDrop(event)" ondrop="dropTask(event, 'done')">
-                        <div class="kanban-header done">เสร็จสิ้น (<span id="numDone">0</span>)</div>
-                        <div class="kanban-body" id="colDone"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- แท็บสั่งงานด้วยเสียง AI (สำรองไว้กรณีต้องการเข้าหน้าเต็ม) -->
-            <div id="tab-voice" class="tab-content">
-                <div class="card text-center" style="padding: 40px; max-width: 600px; margin: 0 auto;">
-                    <div class="voice-icon-circle" id="micIndicator"><i class="fa-solid fa-microphone-lines"></i></div>
-                    <h3>ระบบสั่งงานด้วยเสียงประมวลผลด้วย AI</h3>
-                    <p style="color: var(--text-muted); margin: 10px 0 25px;">กดปุ่มแล้วพูดคำสั่ง เช่น "เพิ่มงานส่งโครงงานไอทีพรุ่งนี้" AI จะทำการวิเคราะห์ข้อความและบันทึกลงบอร์ดให้อัตโนมัติ</p>
-                    <button class="btn-primary" onclick="toggleSpeechRecognition()"><i class="fa-solid fa-microphone"></i> เริ่มพูดคำสั่งเสียง</button>
-                    <div id="voiceResultBox" class="voice-result-box" style="margin-top: 15px;">AI กำลังรอรับเสียงพูดของคุณ...</div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Modal เพิ่มงานใหม่ (รวมระบบสั่งงานด้วยเสียงและช่องกำหนดหมวดหมู่เอง) -->
-    <div class="modal-backdrop" id="taskModal">
-        <div class="modal-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="font-size: 1.2rem; font-weight: 600;">เพิ่มชิ้นงานใหม่</h3>
-                <button onclick="closeTaskModal()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-
-            <!-- ส่วนสั่งงานด้วยเสียงภายใน Modal -->
-            <div style="background: #f8fafc; border: 1px dashed var(--border); padding: 12px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
-                <button type="button" onclick="toggleSpeechRecognitionInModal()" style="background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">
-                    <i class="fa-solid fa-microphone"></i>
-                </button>
-                <div id="modalVoiceResult" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">
-                    คลิกไมค์เพื่อพูดชื่องานด้วยเสียง
-                </div>
-            </div>
-
-            <form onsubmit="handleAddTask(event)">
-                <div class="input-group" style="margin-bottom: 15px;">
-                    <label>ชิ้นงาน / หัวข้อโปรเจกต์</label>
-                    <input type="text" id="inputTitle" placeholder="เช่น ทำสไลด์นำเสนอ..." required>
-                </div>
-                
-                <div class="input-group" style="margin-bottom: 20px;">
-                    <label>หมวดหมู่ (เลือกจากรายการ หรือพิมพ์สร้างใหม่ได้ทันที)</label>
-                    <input type="text" id="inputCategory" list="defaultCategories" placeholder="พิมพ์หรือเลือกหมวดหมู่..." required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);">
-                    <datalist id="defaultCategories">
-                        <option value="IT Project">
-                        <option value="Assignment">
-                        <option value="Design">
-                        <option value="Research">
-                        <option value="General">
-                    </datalist>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button type="button" class="btn-secondary" onclick="closeTaskModal()">ยกเลิก</button>
-                    <button type="submit" class="btn-primary">บันทึก</button>
-                </div>
-            </form>
+    <div class="main-content">
+      <header>
+        <div class="topbar-left">
+          <button class="hamburger" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+          <h2>แดชบอร์ดโครงงาน</h2>
         </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+          <div class="user-profile-badge">
+            <i class="fas fa-user-circle" style="font-size: 28px; color: var(--primary);"></i>
+            <span id="userProfileName">ผู้ใช้งาน</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-body">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>งานทั้งหมด</h3>
+              <div class="value" id="statTotal">0</div>
+            </div>
+            <div class="stat-icon" style="background: #e0e7ff; color: #4f46e5;"><i class="fas fa-tasks"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>รอดำเนินการ</h3>
+              <div class="value" id="statTodo">0</div>
+            </div>
+            <div class="stat-icon" style="background: #fef3c7; color: #d97706;"><i class="fas fa-clock"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>กำลังดำเนินการ</h3>
+              <div class="value" id="statDoing">0</div>
+            </div>
+            <div class="stat-icon" style="background: #e0e7ff; color: #6366f1;"><i class="fas fa-spinner"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>เสร็จสิ้น</h3>
+              <div class="value" id="statDone">0</div>
+            </div>
+            <div class="stat-icon" style="background: #d1fae5; color: #059669;"><i class="fas fa-check-circle"></i></div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h3 style="font-size: 20px;">กระดานงาน (Kanban Board)</h3>
+          <button class="btn-primary-custom" style="width: auto; padding: 12px 24px; margin: 0;" onclick="openTaskModal()"><i class="fas fa-plus"></i> เพิ่มงานใหม่</button>
+        </div>
+
+        <div class="kanban-container" id="kanbanBoard">
+          <div class="kanban-col">
+            <h4>รอดำเนินการ <span class="badge badge-todo">Todo</span></h4>
+            <div class="kanban-dropzone" data-status="todo" id="colTodo" style="min-height: 400px;"></div>
+          </div>
+          <div class="kanban-col">
+            <h4>กำลังดำเนินการ <span class="badge badge-doing">In Progress</span></h4>
+            <div class="kanban-dropzone" data-status="doing" id="colDoing" style="min-height: 400px;"></div>
+          </div>
+          <div class="kanban-col">
+            <h4>เสร็จสิ้น <span class="badge badge-done">Done</span></h4>
+            <div class="kanban-dropzone" data-status="done" id="colDone" style="min-height: 400px;"></div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        let tasks = [
-            { id: 1, title: 'ออกแบบโครงสร้างฐานข้อมูล SQL', category: 'IT Project', status: 'done' },
-            { id: 2, title: 'จัดทำเอกสารนำเสนอโครงงาน', category: 'Assignment', status: 'inprogress' }
-        ];
+  <div class="modal" id="taskModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 20px;">เพิ่มงานใหม่</h3>
+        <button class="close-btn" onclick="closeTaskModal()">&times;</button>
+      </div>
+      <form id="taskForm" onsubmit="handleAddTask(event)">
+        <div class="form-group">
+          <label>ชื่องาน</label>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="taskTitle" class="form-control" required placeholder="ระบุชื่องานโครงงาน" style="padding-left: 16px;">
+            <button type="button" class="btn-primary-custom" style="width: 50px; margin:0;" onclick="startVoiceCommand()" title="สั่งงานด้วยเสียงภาษาไทย"><i class="fas fa-microphone"></i></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>รายละเอียดเพิ่มเติม</label>
+          <textarea id="taskDesc" class="form-control" rows="3" placeholder="รายละเอียดงาน..." style="padding-left: 16px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label>สถานะเริ่มต้น</label>
+          <select id="taskStatus" class="form-control" style="padding-left: 16px;">
+            <option value="todo">รอดำเนินการ</option>
+            <option value="doing">กำลังดำเนินการ</option>
+            <option value="done">เสร็จสิ้น</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary-custom">บันทึกข้อมูลงาน</button>
+      </form>
+    </div>
+  </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('studentName').innerText = localStorage.getItem('currentUser') || 'นักศึกษา';
-            renderTasks();
-        });
-
-        function switchTab(e, tabId) {
-            e.preventDefault();
-            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-            e.currentTarget.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        function renderTasks() {
-            document.getElementById('cntTotal').innerText = tasks.length;
-            document.getElementById('cntTodo').innerText = tasks.filter(t => t.status === 'todo').length;
-            document.getElementById('cntProgress').innerText = tasks.filter(t => t.status === 'inprogress').length;
-            document.getElementById('cntDone').innerText = tasks.filter(t => t.status === 'done').length;
-
-            let tableHtml = '';
-            tasks.forEach(t => {
-                let badgeClass = t.status;
-                let statusText = t.status === 'todo' ? 'รอดำเนินการ' : t.status === 'inprogress' ? 'กำลังทำ' : 'เสร็จสิ้น';
-                tableHtml += `<tr><td><strong>${t.title}</strong></td><td><span style="color:var(--text-muted);">${t.category}</span></td><td><span class="badge ${badgeClass}">${statusText}</span></td><td style="text-align: right;"><button onclick="deleteTask(${t.id})" style="background:none; border:none; color:var(--danger); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td></tr>`;
-            });
-            document.getElementById('recentTableBody').innerHTML = tableHtml;
-
-            renderKanbanCol('colTodo', 'numTodo', tasks.filter(t => t.status === 'todo'));
-            renderKanbanCol('colProgress', 'numProgress', tasks.filter(t => t.status === 'inprogress'));
-            renderKanbanCol('colDone', 'numDone', tasks.filter(t => t.status === 'done'));
-        }
-
-        function renderKanbanCol(colId, numId, list) {
-            document.getElementById(numId).innerText = list.length;
-            let html = '';
-            list.forEach(t => {
-                html += `<div class="kanban-task-item" draggable="true" ondragstart="dragStart(event, ${t.id})"><div style="font-size:0.75rem; color:var(--text-muted);">${t.category}</div><div style="font-weight:500;">${t.title}</div></div>`;
-            });
-            document.getElementById(colId).innerHTML = html;
-        }
-
-        let draggedId = null;
-        function dragStart(e, id) { draggedId = id; }
-        function allowDrop(e) { e.preventDefault(); }
-        function dropTask(e, newStatus) {
-            e.preventDefault();
-            if (draggedId !== null) {
-                let task = tasks.find(t => t.id === draggedId);
-                if (task) { task.status = newStatus; renderTasks(); }
-                draggedId = null;
-            }
-        }
-
-        function openTaskModal() { document.getElementById('taskModal').classList.add('show'); }
-        function closeTaskModal() { 
-            document.getElementById('taskModal').classList.remove('show');
-            const voiceBox = document.getElementById('modalVoiceResult');
-            if (voiceBox) voiceBox.innerHTML = 'คลิกไมค์เพื่อพูดชื่องานด้วยเสียง';
-        }
-
-        function handleAddTask(e) {
-            e.preventDefault();
-            const title = document.getElementById('inputTitle').value.trim();
-            const category = document.getElementById('inputCategory').value.trim() || 'ทั่วไป';
-            if (title) {
-                tasks.unshift({ id: Date.now(), title, category, status: 'todo' });
-                renderTasks(); 
-                closeTaskModal(); 
-                document.getElementById('inputTitle').value = '';
-                document.getElementById('inputCategory').value = '';
-            }
-        }
-
-        function deleteTask(id) {
-            if (confirm('ต้องการลบงานนี้ใช่หรือไม่?')) { tasks = tasks.filter(t => t.id !== id); renderTasks(); }
-        }
-
-        // ฟังก์ชันสั่งงานด้วยเสียงภายใน Modal
-        let modalRecognition = null;
-        function toggleSpeechRecognitionInModal() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert('เบราว์เซอร์ไม่รองรับการสั่งงานด้วยเสียง แนะนำให้ใช้ Google Chrome');
-                return;
-            }
-            if (!modalRecognition) {
-                modalRecognition = new SpeechRecognition();
-                modalRecognition.lang = 'th-TH';
-                modalRecognition.onstart = () => {
-                    document.getElementById('modalVoiceResult').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังฟังเสียงพูดของคุณ...';
-                };
-                modalRecognition.onresult = (event) => {
-                    const text = event.results[0][0].transcript;
-                    document.getElementById('inputTitle').value = text;
-                    
-                    let category = 'General';
-                    if (text.includes('โค้ด') || text.includes('ระบบ') || text.includes('ฐานข้อมูล') || text.includes('เว็บ')) category = 'IT Project';
-                    else if (text.includes('การบ้าน') || text.includes('รายงาน')) category = 'Assignment';
-                    
-                    document.getElementById('inputCategory').value = category;
-                    document.getElementById('modalVoiceResult').innerHTML = `🤖 <strong>AI วิเคราะห์สำเร็จ:</strong> "${text}"`;
-                };
-                modalRecognition.onerror = () => { document.getElementById('modalVoiceResult').innerText = 'เกิดข้อผิดพลาด กรุณาลองใหม่'; };
-            }
-            modalRecognition.start();
-        }
-
-        // ฟังก์ชันเสียงพูดหน้าเต็ม (แท็บสั่งงานด้วยเสียง)
-        let recognition = null;
-        function toggleSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert('เบราว์เซอร์ไม่รองรับการสั่งงานด้วยเสียง แนะนำให้ใช้ Google Chrome');
-                return;
-            }
-            if (!recognition) {
-                recognition = new SpeechRecognition();
-                recognition.lang = 'th-TH';
-                recognition.onstart = () => {
-                    document.getElementById('micIndicator').style.background = '#dcfce7';
-                    document.getElementById('voiceResultBox').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังฟังเสียงพูดของคุณ...';
-                };
-                recognition.onresult = (event) => {
-                    const text = event.results[0][0].transcript;
-                    document.getElementById('voiceResultBox').innerHTML = `🤖 <strong>AI วิเคราะห์สำเร็จ!</strong><br>ข้อความเสียง: "${text}"<br><span style="color:var(--success);">กำลังจัดหมวดหมู่และเพิ่มเข้าบอร์ดงาน...</span>`;
-                    
-                    let category = 'ทั่วไป';
-                    if (text.includes('โค้ด') || text.includes('ระบบ') || text.includes('ฐานข้อมูล')) category = 'IT Project';
-                    else if (text.includes('การบ้าน') || text.includes('ส่ง')) category = 'Assignment';
-
-                    setTimeout(() => {
-                        tasks.unshift({ id: Date.now(), title: text, category: category, status: 'todo' });
-                        renderTasks();
-                    }, 1000);
-                };
-                recognition.onerror = () => { document.getElementById('voiceResultBox').innerText = 'เกิดข้อผิดพลาดในการฟังเสียง กรุณาลองใหม่'; };
-                recognition.onend = () => { document.getElementById('micIndicator').style.background = '#eff6ff'; };
-            }
-            recognition.start();
-        }
-
-        function logout() { localStorage.clear(); window.location.href = 'index.html'; }
-    </script>
-    <!-- ฉากหลังสำหรับปิดเมนวมือถือเมื่อคลิกพื้นที่ว่าง -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+  <script src="script.io.js"></script>
 </body>
 </html>

@@ -1,83 +1,68 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เข้าสู่ระบบ - TaskFlow Pro</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskFlow Pro - เข้าสู่ระบบ</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="login-split-body">
-    <div class="login-split-container">
-        <div class="login-split-banner">
-            <div class="banner-content">
-                <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 20px;"><i class="fa-solid fa-layer-group"></i></div>
-                <h1 style="font-size: 2.2rem; font-weight: 700; color: #1e3a8a; margin-bottom: 12px;">TaskFlow Pro</h1>
-                <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">ระบบจัดการงานและโครงงานนักศึกษาอัจฉริยะ ยกระดับการทำงานให้เป็นระบบ รวดเร็ว และรองรับทุกหน้าจอ</p>
-                
-                <div class="banner-features">
-                    <div class="feature-item"><i class="fa-solid fa-circle-check"></i> จัดการโปรเจกต์และคานบันบอร์ด</div>
-                    <div class="feature-item"><i class="fa-solid fa-circle-check"></i> ระบบ AI ผู้ช่วยวิเคราะห์งานอัจฉริยะ</div>
-                    <div class="feature-item"><i class="fa-solid fa-circle-check"></i> รองรับการสั่งงานด้วยเสียงภาษาไทย</div>
-                </div>
-            </div>
+<body>
+  <div class="split-auth-container">
+    <!-- ฝั่งซ้าย: ฟอร์มเข้าสู่ระบบ -->
+    <div class="auth-form-side">
+      <div style="position: absolute; top: 24px; left: 24px;">
+        <span style="font-weight: 700; font-size: 20px; color: var(--primary); display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-layer-group"></i> TaskFlow Pro
+        </span>
+      </div>
+
+      <div style="position: absolute; top: 24px; right: 24px;">
+        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+      </div>
+
+      <div class="auth-form-container">
+        <div class="auth-header" style="text-align: left; margin-bottom: 24px;">
+          <p style="color: var(--text-muted); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Start your journey</p>
+          <h2 style="font-size: 32px; font-weight: 700; color: var(--text-main);">Sign In to TaskFlow</h2>
         </div>
-
-        <div class="login-split-form-section">
-            <div class="login-card">
-                <h3>ยินดีต้อนรับกลับมา 👋</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px;">กรุณาเข้าสู่ระบบเพื่อจัดการงานของคุณ</p>
-
-                <form onsubmit="handleLogin(event)">
-                    <div class="input-group">
-                        <label>ชื่อผู้ใช้งาน (Username)</label>
-                        <input type="text" id="username" placeholder="กรอกชื่อผู้ใช้งาน..." required autocomplete="off">
-                    </div>
-
-                    <div class="input-group">
-                        <label>รหัสผ่าน (Password)</label>
-                        <input type="password" id="password" placeholder="กรอกรหัสผ่าน..." required>
-                    </div>
-
-                    <button type="submit" class="btn-primary btn-full">
-                        <span>เข้าสู่ระบบ</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </form>
-
-                <div class="login-helper-box">
-                    <h4 style="margin-bottom: 8px;">📌 บัญชีทดสอบระบบ:</h4>
-                    <ul>
-                        <li><strong>นักศึกษา:</strong> std69319010014 / 1234[cite: 14]</li>
-                    </ul>
-                </div>
+        
+        <form id="loginForm">
+          <div class="form-group">
+            <label>ชื่อผู้ใช้งาน (Username)</label>
+            <div class="input-icon-wrap">
+              <i class="fas fa-user"></i>
+              <input type="text" id="loginUsername" class="form-control" required placeholder="กรอก Username ของคุณ">
             </div>
+          </div>
+          
+          <div class="form-group">
+            <label>รหัสผ่าน (Password)</label>
+            <div class="input-icon-wrap">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="loginPassword" class="form-control" required placeholder="กรอกรหัสผ่าน">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary-custom">Sign In</button>
+        </form>
+
+        <div class="auth-footer-link" style="text-align: left; margin-top: 24px;">
+          <p>Don't have an account? <a href="register.html" style="color: var(--primary); font-weight: 600;">Sign up</a></p>
         </div>
+      </div>
     </div>
 
-    <script>
-        function handleLogin(e) {
-    e.preventDefault();
-    const u = document.getElementById('username').value.trim();
-    const p = document.getElementById('password').value.trim();
+    <!-- ฝั่งขวา: แผงรูปภาพและแอนิเมชัน -->
+    <div class="auth-visual-side">
+      <div class="visual-content">
+        <h3 style="font-size: 28px; margin-bottom: 12px; font-weight: 700;">Manage Your Projects Efficiently</h3>
+        <p style="font-size: 14px; opacity: 0.9; line-height: 1.5;">ระบบจัดการงานและโครงงานนักศึกษาอัจฉริยะ พร้อมระบบติดตามสถานะแบบเรียลไทม์</p>
+      </div>
+    </div>
+  </div>
 
-    if (p === '1234') {
-        if (u === 'admin') {
-            localStorage.setItem('currentUser', 'ผู้ดูแลระบบ');
-            window.location.href = 'admin-dashboard.html'; // สร้างหน้าสำหรับ Admin เพิ่มเติม
-        } else if (u === 'std69319010014') {
-            localStorage.setItem('currentUser', 'นักศึกษา');
-            window.location.href = 'student-dashboard.html';
-        } else {
-            alert('ไม่พบชื่อผู้ใช้งานนี้ในระบบ');
-        }
-    } else {
-        alert('รหัสผ่านไม่ถูกต้อง (ใช้รหัสผ่าน 1234)');
-    }
-}
-    </script>
-    <!-- ฉากหลังสำหรับปิดเมนวมือถือเมื่อคลิกพื้นที่ว่าง -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+  <script src="script.io.js"></script>
 </body>
 </html>
